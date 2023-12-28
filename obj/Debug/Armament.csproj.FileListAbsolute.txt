@@ -1,0 +1,12 @@
+D:\EDNKRS_WRKSPC\Armament\EdnKrs.Armament.deps.json
+D:\EDNKRS_WRKSPC\Armament\EdnKrs.Armament.dll
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\Armament.csproj.AssemblyReference.cache
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\Armament.GeneratedMSBuildEditorConfig.editorconfig
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\Armament.AssemblyInfoInputs.cache
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\Armament.AssemblyInfo.cs
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\Armament.csproj.CoreCompileInputs.cache
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\EdnKrs.Armament.dll
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\refint\EdnKrs.Armament.dll
+D:\EDNKRS_WRKSPC\Utilities\Armament\obj\Debug\ref\EdnKrs.Armament.dll
+D:\Armament2\EdnKrs.Armament.deps.json
+D:\Armament2\EdnKrs.Armament.dll
