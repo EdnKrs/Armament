@@ -3,12 +3,31 @@ using Gear;
 using HarmonyLib;
 using Player;
 using UnityEngine;
-
+using System.Collections.Generic;
+using GameData;
+using Il2CppInterop.Runtime.InteropTypes;
 namespace Armament.ReloadImprovements
 {
     [HarmonyPatch]
     internal class RLDImprovementPatches
     {
+        private static Dictionary<InventorySlot, float> AmmoMaxCapLookup = new Dictionary<InventorySlot, float>
+        {
+            {
+                InventorySlot.GearStandard,
+                0f
+            },
+            {
+                InventorySlot.GearSpecial,
+                0f
+            }
+        };
+        private static InventorySlotAmmo? StandardAmmo;
+        private static InventorySlotAmmo? SpeacialAmmo;
+        private static bool NeedRestoredStandardAmmoMaxCap = false;
+        private static bool NeedRestoredSpecialAmmoMaxCap = false;
+        private static float AmmoStandardResourcePackMaxCap => GameDataBlockBase<PlayerDataBlock>.GetBlock(1u).AmmoStandardResourcePackMaxCap;
+        private static float AmmoSpecialResourcePackMaxCap => GameDataBlockBase<PlayerDataBlock>.GetBlock(1u).AmmoSpecialResourcePackMaxCap;
         [HarmonyPatch(typeof(PlayerAmmoStorage), "GetClipBulletsFromPack")]
         [HarmonyPrefix]
         public static bool GetClipBulletsFromPack(PlayerAmmoStorage __instance, ref int __result, int currentClip, AmmoType ammoType)
@@ -57,6 +76,68 @@ namespace Armament.ReloadImprovements
         {
             __result = __instance.m_clip >= __instance.ClipSize;
             return false;
+        }
+        [HarmonyPatch(typeof(PlayerBackpackManager), "ReceiveAmmoGive")]
+        [HarmonyPrefix]
+        private static void ReceiveAmmoGive(ref pAmmoGive data)
+        {
+            bool flag = false;
+            bool flag2 = false;
+            float num = 0f;
+            float num2 = 0f;
+            if (data.targetPlayer.TryGetPlayer(out var player) && player.IsLocal)
+            {
+                if (PlayerBackpackManager.LocalBackpack.TryGetBackpackItem(InventorySlot.GearStandard, out var backpackItem))
+                {
+                    BulletWeapon bulletWeapon = ((Il2CppObjectBase)(object)backpackItem.Instance).TryCast<BulletWeapon>()!;
+                    float num3 = (float)(bulletWeapon.ClipSize - bulletWeapon.m_clip) * bulletWeapon.ArchetypeData.CostOfBullet;
+                    StandardAmmo = PlayerBackpackManager.LocalBackpack.AmmoStorage.StandardAmmo;
+                    AmmoMaxCapLookup[InventorySlot.GearStandard] = StandardAmmo.AmmoMaxCap;
+                    StandardAmmo.AmmoMaxCap += num3;
+                    NeedRestoredStandardAmmoMaxCap = true;
+                    num = data.ammoStandardRel * AmmoStandardResourcePackMaxCap + StandardAmmo.AmmoInPack - StandardAmmo.AmmoMaxCap;
+                    flag = num > 0f;
+                }
+                if (PlayerBackpackManager.LocalBackpack.TryGetBackpackItem(InventorySlot.GearSpecial, out backpackItem))
+                {
+                    BulletWeapon bulletWeapon2 = ((Il2CppObjectBase)(object)backpackItem.Instance).TryCast<BulletWeapon>()!;
+                    float num4 = (float)(bulletWeapon2.ClipSize - bulletWeapon2.m_clip) * bulletWeapon2.ArchetypeData.CostOfBullet;
+                    SpeacialAmmo = PlayerBackpackManager.LocalBackpack.AmmoStorage.SpecialAmmo;
+                    AmmoMaxCapLookup[InventorySlot.GearSpecial] = SpeacialAmmo.AmmoMaxCap;
+                    SpeacialAmmo.AmmoMaxCap += num4;
+                    NeedRestoredSpecialAmmoMaxCap = true;
+                    num2 = data.ammoSpecialRel * AmmoSpecialResourcePackMaxCap + SpeacialAmmo.AmmoInPack - SpeacialAmmo.AmmoMaxCap;
+                    flag2 = num2 > 0f;
+                }
+                if (flag && !flag2)
+                {
+                    data.ammoSpecialRel += num / AmmoStandardResourcePackMaxCap;
+                }
+                else if (!flag && flag2)
+                {
+                    data.ammoStandardRel += num2 / AmmoSpecialResourcePackMaxCap;
+                }
+            }
+        }
+        [HarmonyPatch(typeof(PlayerBackpackManager), "ReceiveAmmoGive")]
+        [HarmonyPostfix]
+        private static void ReceiveAmmoGive(pAmmoGive data)
+        {
+            if (data.targetPlayer.TryGetPlayer(out var player) && player.IsLocal)
+            {
+                if (PlayerBackpackManager.LocalBackpack.TryGetBackpackItem(InventorySlot.GearStandard, out var backpackItem))
+                {
+                    StandardAmmo!.AmmoMaxCap = AmmoMaxCapLookup[InventorySlot.GearStandard];
+                    PlayerBackpackManager.LocalBackpack.AmmoStorage.UpdateSlotAmmoUI(InventorySlot.GearStandard);
+                    NeedRestoredStandardAmmoMaxCap = false;
+                }
+                if (PlayerBackpackManager.LocalBackpack.TryGetBackpackItem(InventorySlot.GearSpecial, out backpackItem))
+                {
+                    SpeacialAmmo!.AmmoMaxCap = AmmoMaxCapLookup[InventorySlot.GearSpecial];
+                    PlayerBackpackManager.LocalBackpack.AmmoStorage.UpdateSlotAmmoUI(InventorySlot.GearSpecial);
+                    NeedRestoredSpecialAmmoMaxCap = false;
+                }
+            }
         }
     }
 }

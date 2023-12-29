@@ -9,7 +9,7 @@
 		<AssemblyName>EdnKrs.Armament</AssemblyName>
 		<RootNamespace>Armament</RootNamespace>
 		<BepInEx>C:\Users\Admin\AppData\Roaming\r2modmanPlus-local\GTFO\profiles\Weapons\BepInEx</BepInEx>
-		<OutputPath>D:\Armament2</OutputPath>
+		<OutputPath>E:\Backups\GTFO\Mods\EdnKrs-Armament</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 

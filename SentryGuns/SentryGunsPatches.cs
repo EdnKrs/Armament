@@ -134,7 +134,6 @@ namespace Armament.SentryGuns
         public static void GetSentryDamage(ArchetypeDataBlock __instance, PlayerAgent owner, float distance, bool targetIsTagged, ref float __result)
         {
             __result = (AgentModifierManager.ApplyModifier(owner, AgentModifier.SentryGunDamage, __result) > 2.1f) ? ((AgentModifierManager.ApplyModifier(owner, AgentModifier.SentryGunDamage, __result) / ArmorPiercingFragmentationPatches.ArmorDmgMult)) * UnityEngine.Random.Range(2.5f, 2.910603f) : AgentModifierManager.ApplyModifier(owner, AgentModifier.SentryGunDamage, __result) * UnityEngine.Random.Range(2.5f, 2.910603f);
-            Debug.Log($"Sentry Damage = {__result} | Armor Damage Multiplier = {ArmorPiercingFragmentationPatches.ArmorDmgMult}");
         }
     }
 }
